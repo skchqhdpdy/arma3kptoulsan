@@ -20,7 +20,7 @@ if ( dorepackage > 0 ) then {
 		publicVariable "GRLIB_all_fobs";
 	};
 
-	{ deleteVehicle _x }  foreach ( [ ( (getpos player) nearobjects [ FOB_typename, 250 ] ) , { getObjectType _x >= 8 } ] call BIS_fnc_conditionalSelect );
+	{ deleteVehicle _x }  foreach (( (getpos player) nearobjects [ FOB_typename, 250 ] ) select { getObjectType _x >= 8 });
 
 	sleep 0.5;
 
@@ -32,7 +32,7 @@ if ( dorepackage > 0 ) then {
 
 	if ( dorepackage == 1 ) then {
 		_fobbox = FOB_box_typename createVehicle _spawnpos;
-		_fobbox call F_setFobMass;
+		[_fobbox, 3000 ] remoteExec ["F_SetMass"];
 	};
 
 	if ( dorepackage == 2 ) then {

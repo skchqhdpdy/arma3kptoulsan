@@ -1,13 +1,15 @@
+private [ "_last_transition", "_last_position", "_cinematic_camera", "_cinematic_pointer", "_positions", "_last_position", "_nearentities", "_camtarget", "_startpos", "_endpos", "_startfov", "_endfov", "_nearest_sector", "_unitname", "_position" ];
+
 if ( isNil "active_sectors" ) then { active_sectors = [] };
 if ( isNil "GRLIB_all_fobs" ) then { GRLIB_all_fobs = [] };
 
 cinematic_camera_started = true;
-private _last_transition = -1;
-private _last_position = [ -1, -1, -1 ];
+_last_transition = -1;
+_last_position = [ -1, -1, -1 ];
 
 showCinemaBorder true;
-private _cinematic_camera = "camera" camCreate [0,0,0];
-private _cinematic_pointer = "Sign_Arrow_Blue_F" createVehicleLocal [0,0,0];
+_cinematic_camera = "camera" camCreate [0,0,0];
+_cinematic_pointer = "Sign_Arrow_Blue_F" createVehicleLocal [0,0,0];
 _cinematic_pointer hideObject true;
 _cinematic_camera camSetTarget _cinematic_pointer;
 _cinematic_camera cameraEffect ["internal","back"];
@@ -21,7 +23,7 @@ while { cinematic_camera_started } do {
 	if ( cinematic_camera_started ) then {
 		camUseNVG false;
 
-		private _positions = [ getpos startbase ];
+		_positions = [ getpos lhd ];
 		if ( !first_camera_round ) then {
 
 			if ( count GRLIB_all_fobs > 0 ) then {
@@ -41,7 +43,7 @@ while { cinematic_camera_started } do {
 			};
 
 			if ( GRLIB_endgame == 0 ) then {
-				 _activeplayers = ( [ allPlayers , { alive _x && ( _x distance ( getmarkerpos GRLIB_respawn_marker ) ) > 100 } ] call BIS_fnc_conditionalSelect );
+				 _activeplayers = ( allPlayers select { alive _x && ( _x distance ( getmarkerpos GRLIB_respawn_marker ) ) > 100 } );
 				 if ( count _activeplayers > 0 ) then {
 				 	for [ {_idx=0},{_idx < 3},{_idx=_idx+1} ] do {
 						_positions pushback (getpos (selectRandom _activeplayers));
@@ -50,34 +52,32 @@ while { cinematic_camera_started } do {
 			};
 
 		};
-		_position = selectRandom (_positions - [_last_position]);
+		_position = selectRandom ( _positions - [ _last_position ] );
 		_last_position = _position;
 		_cinematic_pointer setpos [ _position select 0, _position select 1, (_position select 2) + 7 ];
-		private _nearentities = _position nearEntities [ "Man", 100 ];
-		private _camtarget = _cinematic_pointer;
+		_nearentities = _position nearEntities [ "Man", 100 ];
+		_camtarget = _cinematic_pointer;
 		if ( first_camera_round ) then {
-			_camtarget = startbase;
-		} else {
-			if ( count ( [ _nearentities , { alive _x && isPlayer _x } ] call BIS_fnc_conditionalSelect ) != 0 ) then {
-				_camtarget = selectRandom ([_nearentities, {alive _x && isPlayer _x}] call BIS_fnc_conditionalSelect);
+			if ( count ( _nearentities select { alive _x && isPlayer _x } ) != 0 ) then {
+				_camtarget = selectRandom ( _nearentities select { alive _x && isPlayer _x } );
 			} else {
-				if ( count ( [ _nearentities , { alive _x } ] call BIS_fnc_conditionalSelect ) != 0 ) then {
-					_camtarget = selectRandom ([_nearentities, {alive _x}] call BIS_fnc_conditionalSelect);
+				if ( count ( _nearentities select { alive _x } ) != 0 ) then {
+					_camtarget = selectRandom ( _nearentities select { alive _x } );
 				};
 			};
 		};
 
 		_cinematic_camera camSetTarget _camtarget;
-		private _startpos = [ ((getpos _camtarget) select 0) - 60, ((getpos _camtarget) select 1) + 350, 5 ];
-		private _endpos = [ ((getpos _camtarget) select 0) - 60, ((getpos _camtarget) select 1) - 230, 5 ];
-		private _startfov = 0.5;
-		private _endfov = 0.5;
+		_startpos = [ ((getpos _camtarget) select 0) - 60, ((getpos _camtarget) select 1) + 350, 5 ];
+		_endpos = [ ((getpos _camtarget) select 0) - 60, ((getpos _camtarget) select 1) - 230, 5 ];
+		_startfov = 0.5;
+		_endfov = 0.5;
 
 		if ( !first_camera_round ) then {
 			_startfov = 0.8;
 			_endfov = 0.8;
 
-			_next_transition = selectRandom ([0, 1, 2, 3, 4, 5, 6, 7 ,8 ,9 ,10, 11 ,12 ,13 ,14, 15] - [_last_transition]);
+			_next_transition = selectRandom ( [ 0, 1, 2, 3, 4, 5, 6, 7 ,8 ,9 ,10, 11 ,12 ,13 ,14, 15 ] - [ _last_transition ] );
 			_last_transition = _next_transition;
 
 			switch ( _next_transition ) do {
@@ -246,17 +246,17 @@ while { cinematic_camera_started } do {
 
 		if ( !isNil "showcaminfo" ) then {
 			if ( showcaminfo && howtoplay == 0 ) then {
-				private _unitname = "";
+				_unitname = "";
 				if ( isPlayer _camtarget ) then { _unitname = name _camtarget };
-				private _nearest_sector = "";
-				if ( _position distance startbase < 300 ) then {
-					_nearest_sector = "BEGIN OF OPERATION";
+				_nearest_sector = "";
+				if ( _position distance lhd < 300 ) then {
+					_nearest_sector = "BASE CHIMERA";
 				} else {
 					_nearest_sector = [300, _position ] call F_getNearestSector;
 					if ( _nearest_sector != "" ) then {
 						_nearest_sector = markertext _nearest_sector;
 					} else {
-						_nearfobs = [ GRLIB_all_fobs, { _x distance _position < 300 } ] call BIS_fnc_conditionalSelect;
+						_nearfobs = GRLIB_all_fobs select { _x distance _position < 300 };
 						if ( count _nearfobs > 0 ) then {
 							_nearest_sector = format [ "FOB %1", military_alphabet select ( GRLIB_all_fobs find ( _nearfobs select 0 ) ) ];
 						};

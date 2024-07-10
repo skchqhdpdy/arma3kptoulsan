@@ -6,14 +6,14 @@ _bg_groups = [];
 last_battlegroup_size = 0;
 _spawn_marker = "";
 if ( count _this == 1 ) then {
-	_spawn_marker = [ 2000, 10000, false, _this select 0 ] call F_findOpforSpawnPoint;
+	_spawn_marker = [ 500, 2000, false, _this select 0 ] call F_findOpforSpawnPoint;
 } else {
 	_spawn_marker = [ 2000, 10000, false ] call F_findOpforSpawnPoint;
 };
 
 
 _vehicle_pool = opfor_battlegroup_vehicles;
-if ( combat_readiness < 50 ) then {
+if ( combat_readiness < 60 ) then {
 	_vehicle_pool = opfor_battlegroup_vehicles_low_intensity;
 };
 
@@ -24,15 +24,15 @@ if ( _spawn_marker != "" ) then {
 	_selected_opfor_battlegroup = [];
 	_target_size = GRLIB_battlegroup_size * ([] call F_adaptiveOpforFactor) * (sqrt GRLIB_csat_aggressivity);
 	if ( _target_size >= 16 ) then { _target_size = 16; };
-	if ( combat_readiness < 60 ) then { _target_size = round (_target_size * 0.65) };
+	if ( combat_readiness < 75 ) then { _target_size = round (_target_size * 0.5) };
 	while { count _selected_opfor_battlegroup < _target_size } do {
 		_selected_opfor_battlegroup pushback (selectRandom _vehicle_pool);
 	};
 
-	[_spawn_marker] remoteExec ["remote_call_battlegroup"];
+	[ _spawn_marker ] remoteExec ["remote_call_battlegroup",-2];
 
 	{
-		_nextgrp = createGroup [GRLIB_side_enemy, true];
+		_nextgrp = createGroup GRLIB_side_enemy;
 		_vehicle = [markerpos _spawn_marker, _x] call F_libSpawnVehicle;
 		sleep 0.5;
 		(crew _vehicle) joinSilent _nextgrp;
@@ -49,9 +49,8 @@ if ( _spawn_marker != "" ) then {
 	};
 
 	sleep 5;
-
-	combat_readiness = combat_readiness - (round ((last_battlegroup_size / 2) + (random (last_battlegroup_size / 2))));
-	if ( combat_readiness < 0 ) then { combat_readiness = 0 };
+	
+	[-(round ((last_battlegroup_size / 2) + (random (last_battlegroup_size / 2))))] call F_addCombatReadiness;
 
 	stats_hostile_battlegroups = stats_hostile_battlegroups + 1;
 

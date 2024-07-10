@@ -17,9 +17,9 @@ waitUntil { dialog };
 private [ "_oldchoice", "_images", "_briefings", "_missioncost" ];
 
 _images = [
-	"res\secondary\fob_hunting.jpg",
-	"res\secondary\convoy_hijack.jpg",
-	"res\secondary\sar.jpg"
+	"res\secondary\fob.jpg",
+	"res\secondary\delivery.jpg",
+	"res\secondary\rescue.jpg"
 ];
 
 _briefings = [
@@ -66,7 +66,9 @@ while { dialog && alive player && dostartsecondary == 0 } do {
 };
 
 if ( dostartsecondary == 1 ) then {
-	[lbCurSel 101] remoteExec ["start_secondary_remote_call",2];
+	[ lbCurSel 101 ] remoteExec ["start_secondary_remote_call", 2];
+	[gamelogic, format["%1님이 부차임무를 시작하였습니다.", name player]] remoteExec ["globalChat",[WEST,civilian]];
+	format["%1 started secondary", name player] remoteExec ["diag_log", 2];
 };
 
 if ( dialog ) then {

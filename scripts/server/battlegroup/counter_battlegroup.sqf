@@ -10,15 +10,16 @@ while { GRLIB_csat_aggressivity >= 0.9 && GRLIB_endgame == 0 } do {
 
 	_sleeptime = (1800 + (random 1800)) / (([] call  F_adaptiveOpforFactor) * GRLIB_csat_aggressivity);
 
-	if ( combat_readiness >= 80 ) then { _sleeptime = _sleeptime * 0.75 };
-	if ( combat_readiness >= 90 ) then { _sleeptime = _sleeptime * 0.75 };
-	if ( combat_readiness >= 95 ) then { _sleeptime = _sleeptime * 0.75 };
+	if ( combat_readiness >= 50 ) then { _sleeptime = _sleeptime * 0.8 };
+	if ( combat_readiness >= 75 ) then { _sleeptime = _sleeptime * 0.8 };
+	if ( combat_readiness >= 90 ) then { _sleeptime = _sleeptime * 0.8 };
+	if ( combat_readiness >= 125 ) then { _sleeptime = _sleeptime * 0.8 };
 
 	sleep _sleeptime;
 
 	waitUntil {
 		sleep 5;
-	 	combat_readiness >= 70 &&
+	 	combat_readiness >= 50 &&
 	 	(armor_weight >= 50 || air_weight >= 50);
 
 	 };

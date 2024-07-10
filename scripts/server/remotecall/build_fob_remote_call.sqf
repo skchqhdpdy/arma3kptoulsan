@@ -17,9 +17,6 @@ if ( _create_fob_building ) then {
 trigger_server_save = true;
 
 sleep 3;
-[_new_fob, 0] remoteExec ["remote_call_fob"];
+[ _new_fob, 0 ] remoteExec ["remote_call_fob", -2];
 
 stats_fobs_built = stats_fobs_built + 1;
-
-FOB_build_in_progress = false;
-publicVariable "FOB_build_in_progress";

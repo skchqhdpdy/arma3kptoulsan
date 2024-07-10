@@ -6,9 +6,7 @@ _cfg = configFile >> "cfgVehicles";
 _vehtomark = [];
 
 _support_to_skip = [
-	KP_liberation_supply_crate,
-	KP_liberation_ammo_crate,
-	KP_liberation_fuel_crate,
+	ammobox_o_typename,
 	"B_Slingload_01_Repair_F",
 	"B_Slingload_01_Fuel_F",
 	"B_Slingload_01_Ammo_F"
@@ -24,7 +22,7 @@ while { true } do {
 
 	_markedveh = [];
 	{
-		if ( (alive _x) && ((typeof _x) in _vehtomark) && (count (crew _x) == 0) && (_x distance startbase > 500) ) then {
+		if ( (alive _x) && ((typeof _x) in _vehtomark) && (count (crew _x) == 0) && (_x distance lhd > 500) ) then {
 			_markedveh pushback _x;
 		};
 	} foreach vehicles;

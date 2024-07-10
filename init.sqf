@@ -1,34 +1,45 @@
 enableSaving [ false, false ];
 
-if (isDedicated) then {debug_source = "Server";} else {debug_source = name player;};
-
-[] call compileFinal preprocessFileLineNumbers "scripts\shared\liberation_functions.sqf";
-[] call compileFinal preprocessFileLineNumbers "scripts\shared\init_sectors.sqf";
-[] call compileFinal preprocessFileLineNumbers "scripts\shared\fetch_params.sqf";
-[] call compileFinal preprocessFileLineNumbers "kp_liberation_config.sqf";
-[] call compileFinal preprocessFileLineNumbers "presets\init_presets.sqf";
-
-[] execVM "GREUH\scripts\GREUH_activate.sqf";
-
-[] call compileFinal preprocessFileLineNumbers "scripts\shared\init_shared.sqf";
+[] call compileFinal preprocessFileLineNUmbers "scripts\shared\liberation_functions.sqf";
+[] call compileFinal preprocessFileLineNUmbers "scripts\shared\init_sectors.sqf";
+[] call compileFinal preprocessFileLineNUmbers "scripts\shared\fetch_params.sqf";
+[] call compileFinal preprocessFileLineNUmbers "gameplay_constants.sqf";
+[] call compileFinal preprocessFileLineNUmbers "classnames_extension.sqf";
+[] call compileFinal preprocessFileLineNUmbers "scripts\shared\classnames.sqf";
+[] call compileFinal preprocessfilelinenumbers "scripts\shared\init_shared.sqf";
 
 if (isServer) then {
 	[] call compileFinal preprocessFileLineNumbers "scripts\server\init_server.sqf";
 };
 
 if (!isDedicated && !hasInterface && isMultiplayer) then {
-	execVM "scripts\server\offloading\hc_manager.sqf";
+	[] spawn compileFinal preprocessFileLineNumbers "scripts\server\offloading\hc_manager.sqf";
 };
 
 if (!isDedicated && hasInterface) then {
-	waitUntil {alive player};
-	if (debug_source != name player) then {debug_source = name player};
+	waitUntil { alive player };
 	[] call compileFinal preprocessFileLineNumbers "scripts\client\init_client.sqf";
 } else {
 	setViewDistance 1600;
 };
 
-// Execute fnc_reviveInit again (by default it executes in postInit)
-if ((isNil {player getVariable "bis_revive_ehHandleHeal"} || isDedicated) && !(bis_reviveParam_mode == 0)) then {
-    [] call bis_fnc_reviveInit;
-};
+// EXTENTION ADDONS
+[] execVM "scripts\addon\cratercleaner.sqf";
+[] execVM "scripts\addon\Loopmsg.sqf";
+
+AWS_AMS_LoadingTime = 40;
+
+["HS_addPlayerScore" , {
+  params ["_killer", "_score"];
+
+  _killer addplayerscores [_score,0,0,0,0];
+	//diag_log "HS_addPlayerScore 점수 추가됨."
+
+}] call CBA_fnc_addEventHandler;
+
+[] call compileFinal preprocessFileLineNumbers "scripts\server\HS\addPlayerScore.sqf";
+
+ace_medical_selections = ["Head", "Body", "LeftArm", "RightArm", "LeftLeg", "RightLeg"];
+// 좀비 에드온 데미지 기능 추가
+
+Player enableWeaponDisassembly false;

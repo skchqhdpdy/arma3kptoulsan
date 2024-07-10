@@ -1,6 +1,7 @@
-private _vehicle_to_spawn = selectRandom opfor_vehicles;
+private [ "_vehicle_to_spawn" ];
 
-if (combat_readiness < 35) then {
+_vehicle_to_spawn = selectRandom opfor_vehicles;
+if ( combat_readiness < 25 ) then {
 	_vehicle_to_spawn = selectRandom opfor_vehicles_low_intensity;
 };
 

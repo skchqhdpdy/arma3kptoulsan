@@ -15,7 +15,7 @@ sleep 2;
 _unit enableAI "ANIM";
 _unit enableAI "MOVE";
 sleep 2;
-[_unit] remoteExec ["remote_call_switchmove"];
+[ _unit ] remoteExec ["remote_call_switchmove",2];
 
 if ( typeof _unit == pilot_classname ) exitWith {};
 
@@ -32,7 +32,7 @@ waitUntil { sleep 5;
 	if ( !_is_near_blufor ) then {
 		{
 			if ((_x distance _unit) < 100) exitWith { _is_near_blufor = true };
-		} foreach (  [ allUnits, { !(((typeof _x) in opfor_infantry) || ((typeof _x) in militia_squad)) } ] call BIS_fnc_conditionalSelect );
+		} foreach ( allUnits select { !(((typeof _x) in opfor_infantry) || ((typeof _x) in militia_squad)) });
 	};
 
 	!alive _unit || !(_is_near_blufor) || (_is_near_fob && (vehicle _unit == _unit))
@@ -43,20 +43,20 @@ if (alive _unit) then {
 	if ( _is_near_fob ) then {
 
 		sleep 5;
-		_grp = createGroup [GRLIB_side_friendly, true];
+		_grp = createGroup GRLIB_side_friendly;
 		[_unit] joinSilent _grp;
 		_unit playmove "AmovPercMstpSnonWnonDnon_AmovPsitMstpSnonWnonDnon_ground";
 		_unit disableAI "ANIM";
 		_unit disableAI "MOVE";
 		sleep 5;
-		[_unit, "AidlPsitMstpSnonWnonDnon_ground00"] remoteExec ["remote_call_switchmove"];
-		[_unit] remoteExec ["prisonner_remote_call",2];
+		[ _unit, "AidlPsitMstpSnonWnonDnon_ground00" ] remoteExec ["remote_call_switchmove"];
+		[ _unit ] remoteExec ["prisonner_remote_call",2];
 		sleep 600;
 		deleteVehicle _unit;
 
 	} else {
 
-		_grp = createGroup [GRLIB_side_enemy, true];
+		_grp = createGroup GRLIB_side_enemy;
 		[_unit] joinSilent _grp;
 		_unit setUnitPos "AUTO";
 		_unit setCaptive false;

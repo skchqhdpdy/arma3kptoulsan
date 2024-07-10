@@ -28,7 +28,7 @@ _tutorial_pages = [
 	"STR_TUTO_TEXT10"
 ];
 
-_current_page = 0;
+_current_page = 1;
 _old_page = -99;
 
 while { true } do {

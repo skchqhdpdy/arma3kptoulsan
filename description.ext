@@ -1,25 +1,32 @@
+#include "ui\liberation_interface.hpp"
+#include "ui\liberation_notifications.hpp"
+#include "ui\mission_params.hpp"
+
+#include "scripts\addon\HS_SquadManagement\define.hpp"
+#include "scripts\addon\HS_SquadManagement\dialog.hpp"
+
+disableChannels[]={{0, true, true},{1, false, true},{2, false, false},{3, false, false},{4, false, false},{5, false, false},{6, true, true}};
+
+disabledAI = 1;
 respawn = 3;
-respawndelay = 5;
-respawnButton = 1;
-disabledAI = true;
+respawndelay = 30;
 
 enableDebugConsole = 1;
 allowFunctionsLog = 0;
 
-briefingName = $STR_MISSION_TITLE;
-overviewText = "www.killahpotatoes.de";
-overviewPicture = "res\lib.paa";
-author = "[GREUH] Zbug, [GREUH] McKeewa, [KP] Wyqer";
+loadScreen="res\liberation.jpg";
+onLoadMission = $STR_MISSION_TITLE;
+author = "[GREUH] Zbug, [GREUH] McKeewa, [USF] Notorious";
 onLoadName = $STR_MISSION_TITLE;
-onLoadMission = "www.killahpotatoes.de";
-loadScreen = "res\lib.paa";
+onLoadMissionTime = 1;
+joinUnassigned = 0;
 
-joinUnassigned = 1;
-
-#include "GREUH\UI\GREUH_interface.hpp"
-#include "ui\liberation_interface.hpp"
-#include "ui\liberation_notifications.hpp"
-#include "ui\mission_params.hpp"
+class Header
+{
+	gameType = CTI;
+	minPlayers = 1;
+	maxPlayers = 76;
+};
 
 class CfgDebriefing
 {
@@ -30,4 +37,13 @@ class CfgDebriefing
 		description = $STR_COMMANDER_NOT_AUTHORIZED;
 		pictureBackground = "";
 	};
+};
+
+class CfgDebriefingSections 
+{
+    class acex_killTracker 
+	{
+            title = "Acex Killed Events";
+            variable = "acex_killTracker_outputText";
+    };
 };

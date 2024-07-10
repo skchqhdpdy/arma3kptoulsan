@@ -3,7 +3,7 @@ private [ "_actual_capture_size", "_red_forces", "_blue_forces", "_ratio" ];
 
 _actual_capture_size = GRLIB_capture_size;
 if ( _sector in sectors_bigtown ) then {
-	_actual_capture_size = GRLIB_capture_size * 1.4;
+	_actual_capture_size = GRLIB_capture_size * 1.5;
 };
 
 _red_forces = [ (markerpos _sector), _actual_capture_size, GRLIB_side_enemy ] call F_getUnitsCount;

@@ -1,91 +1,69 @@
-waitUntil {!isNil "save_is_loaded"};
-waitUntil {!isNil "KP_liberation_production"};
+waitUntil { !isNil "save_is_loaded" };
+waitUntil { !isNil "blufor_sectors" };
+waitUntil { !isNil "saved_ammo_res" };
+waitUntil { !isNil "saved_intel_res" };
 
-sectors_recalculating = false;
-sectors_timer = false;
+resources_ammo = saved_ammo_res;
+resources_intel = saved_intel_res;
 
-if (KP_liberation_production_debug > 0) then {diag_log "[KP LIBERATION] [PRODUCTION] Production management started";};
+while { GRLIB_endgame == 0 } do {
 
-while {GRLIB_endgame == 0} do {
+	_base_tick_period = 3600;
 
-	recalculate_sectors = false;
-	
-	if (((count allPlayers) > 0) && ((count KP_liberation_production) > 0)) then {
-		waitUntil {sleep 0.5; !sectors_recalculating};
-		sectors_recalculating = true;
+	if ( count allPlayers > 0 ) then {
 
-		private _time_update = false;
-		if (sectors_timer) then {_time_update = true; sectors_timer = false;};
-
-		if (KP_liberation_production_debug > 0) then {diag_log format ["[KP LIBERATION] [PRODUCTION] Production interval started: %1 - _time_update: %2", time, _time_update];};
-
-		private _tempProduction = [];
+		_blufor_mil_sectors = [];
 		{
-			private _storageArray = [];
-			private _supplyValue = 0;
-			private _ammoValue = 0;
-			private _fuelValue = 0;
-			private _time = _x select 8;
-
-			private _storage = nearestObjects [(markerPos (_x select 1)), [KP_liberation_small_storage_building], GRLIB_fob_range];
-			_storage = [_storage, {(_x getVariable ["KP_liberation_storage_type",-1]) == 1}] call BIS_fnc_conditionalSelect;
-			if ((count _storage) > 0) then {
-				_storage = (_storage select 0);
-				_storageArray = [(getPosATL _storage),(getDir _storage),(vectorUpVisual _storage)];
-				
-				if (_time_update) then {
-				
-					if ((_time - 1) < 1) then {
-						_time = KP_liberation_production_interval;
-						
-						if (((count (attachedObjects _storage)) < 12) && !((_x select 7) == 3)) then {
-							private _crateType = KP_liberation_supply_crate;
-							switch (_x select 7) do {
-								case 1: {_crateType = KP_liberation_ammo_crate;};
-								case 2: {_crateType = KP_liberation_fuel_crate;};
-								default {_crateType = KP_liberation_supply_crate;};
-							};
-
-							private _crate = [_crateType, 100, getPosATL _storage] call F_createCrate;
-							[_crate, _storage] call F_crateToStorage;
-						};
-					} else {
-						_time = _time - 1;
-					};
-				};
-
-				{
-					switch ((typeOf _x)) do {
-						case KP_liberation_supply_crate: {_supplyValue = _supplyValue + (_x getVariable ["KP_liberation_crate_value",0]);};
-						case KP_liberation_ammo_crate: {_ammoValue = _ammoValue + (_x getVariable ["KP_liberation_crate_value",0]);};
-						case KP_liberation_fuel_crate: {_fuelValue = _fuelValue + (_x getVariable ["KP_liberation_crate_value",0]);};
-						default {diag_log format ["[KP LIBERATION] [ERROR] Invalid object (%1) at storage area", (typeOf _x)];};
-					};
-				} forEach (attachedObjects _storage);
+			if ( _x in sectors_military ) then {
+				_blufor_mil_sectors pushback _x;
+				_base_tick_period = _base_tick_period * 0.80;
 			};
+		} foreach blufor_sectors;
 
-			_tempProduction pushBack [
-				(markerText (_x select 1)),
-				(_x select 1),
-				(_x select 2),
-				_storageArray,
-				(_x select 4),
-				(_x select 5),
-				(_x select 6),
-				(_x select 7),
-				_time,
-				_supplyValue,
-				_ammoValue,
-				_fuelValue
-			];
-			if (KP_liberation_production_debug > 0) then {diag_log format ["[KP LIBERATION] [PRODUCTION] Production Update: %1", _tempProduction select _forEachIndex];};
-		} forEach KP_liberation_production;
+		_base_tick_period = _base_tick_period / GRLIB_resources_multiplier;
 
-		_tempProduction sort true;
+		if ( _base_tick_period < 300 ) then { _base_tick_period = 300 };
 
-		KP_liberation_production = +_tempProduction;
-		sectors_recalculating = false;
+		sleep _base_tick_period;
+		
+		_intel_center = "Land_Device_assembled_F" countType (allMissionObjects "all");
+		
+  		if ( _intel_center > 0 ) then {
+    			resources_intel = resources_intel + _intel_center;
+		};
+
+		if ( count _blufor_mil_sectors > 0 ) then {
+
+			if ( GRLIB_passive_income ) then {
+
+				_ammo_increase = round ( 50 + (random 25));
+				resources_ammo = resources_ammo + _ammo_increase;
+
+			} else {
+
+				if ( ( { typeof _x == ammobox_b_typename } count vehicles ) <= ( ceil ( ( count _blufor_mil_sectors ) * 1.3 ) ) ) then {
+
+					_spawnsector = ( selectRandom _blufor_mil_sectors );
+					_spawnpos = zeropos;
+					while { _spawnpos distance zeropos < 1000 } do {
+						_spawnpos =  (( markerpos _spawnsector) getPos [ random 50, random 360 ]) findEmptyPosition [ 10, 100, 'B_Heli_Transport_01_F' ];
+						if ( count _spawnpos == 0 ) then { _spawnpos = zeropos; };
+					};
+
+
+					_newbox = ammobox_b_typename createVehicle _spawnpos;
+					_newbox setpos _spawnpos;
+					_newbox setdir (random 360);
+					clearWeaponCargoGlobal _newbox;
+					clearMagazineCargoGlobal _newbox;
+					clearItemCargoGlobal _newbox;
+					clearBackpackCargoGlobal _newbox;
+					_newbox addMPEventHandler ['MPKilled', {_this spawn kill_manager}];
+
+					[_newbox, 500 ] remoteExec ["F_setMass"];
+
+				};
+			};
+		};
 	};
-	if (KP_liberation_production_debug > 0) then {diag_log format ["[KP LIBERATION] [PRODUCTION] Production interval finished: %1", time];};
-	waitUntil {sleep 1; recalculate_sectors};
 };

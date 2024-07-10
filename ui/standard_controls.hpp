@@ -1,5 +1,6 @@
 class kndr_MapControl
 {
+	access = 0;
 	idc = 10023;
 	type = CT_MAP_MAIN;
 	style = ST_PICTURE;
@@ -65,6 +66,7 @@ class kndr_MapControl
 	onMouseButtonDblClick = "";
 	scaleMin = 0.05;
 	scaleMax = 3;
+	widthRailWay = 1;
 
 	class ActiveMarker {
 		color[] = {0.30, 0.10, 0.90, 1.00};
@@ -514,25 +516,57 @@ class StdCombo {
 		border = "\A3\ui_f\data\gui\cfg\scrollbar\border_ca.paa";
 	};
 };
-
-class StdEdit {
+class RscPicture
+{
+	deletable = 0;
+	fade = 0;
+	access = 0;
+	type = 0;
 	idc = -1;
-	type = CT_EDIT;
-	style = ST_RIGHT+ST_FRAME;
-	default = false;
-	font = FontM;
-	sizeEx = 0.018 * safezoneH;
-	colorText[] = COLOR_WHITE;
-	colorSelection[] = COLOR_LIGHTGRAY;
-	colorDisabled[] = COLOR_LIGHTGRAY;
-	colorBackground[] = COLOR_GREEN_NOALPHA;
-	colorBackgroundDisabled[] = COLOR_GREEN;
-	colorBackgroundActive[] = COLOR_GREEN_NOALPHA;
+	style = 48;
+	colorBackground[] = 
+	{
+		0,
+		0,
+		0,
+		0
+	};
+	colorText[] = 
+	{
+		1,
+		1,
+		1,
+		1
+	};
+	font = "TahomaB";
+	sizeEx = 0;
+	lineSpacing = 0;
+	text = "";
+	fixedWidth = 0;
+	shadow = 0;
 	x = 0;
 	y = 0;
-	w = 0.3;
-	h = (0.02 * safezoneH);
-	text = "";
-	autocomplete = "";
-	shadow = 0;
+	w = 0.2;
+	h = 0.15;
+	tooltipColorText[] = 
+	{
+		1,
+		1,
+		1,
+		1
+	};
+	tooltipColorBox[] = 
+	{
+		1,
+		1,
+		1,
+		1
+	};
+	tooltipColorShade[] = 
+	{
+		0,
+		0,
+		0,
+		0.65
+	};
 };

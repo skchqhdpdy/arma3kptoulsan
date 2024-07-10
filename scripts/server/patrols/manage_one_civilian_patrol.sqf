@@ -22,25 +22,25 @@ while { GRLIB_endgame == 0 } do {
 	if ( count _usable_sectors > 0 ) then {
 		_spawnsector = selectRandom _usable_sectors;
 
-		_grp = createGroup [GRLIB_side_civilian, true];
+		_grp = createGroup GRLIB_side_civilian;
 		if ( random 100 < 33) then {
-			_civnumber = 1 + (floor (random 2));
+			_civnumber = 2 + (floor (random 3));
 			while { count units _grp < _civnumber } do {
-				(selectRandom civilians) createUnit [ markerpos _spawnsector, _grp, "this addMPEventHandler [""MPKilled"", {_this spawn kill_manager}]", 0.5, "private"];
+				( selectRandom civilians ) createUnit [ markerpos _spawnsector, _grp, "this addMPEventHandler [""MPKilled"", {_this spawn kill_manager}]", 0.5, "private"];
 			};
 			_grpspeed = "LIMITED";
 		} else {
 
 			_nearestroad = objNull;
 			while { isNull _nearestroad } do {
-				_nearestroad = [(getmarkerpos (_spawnsector)) getPos [random (100), random (360)], 200, []] call BIS_fnc_nearestRoad;
+				_nearestroad = [ getmarkerpos (_spawnsector) getPos [ random(100), random(360) ], 200, [] ] call BIS_fnc_nearestRoad;
 				sleep 1;
 			};
 
 			_spawnpos = getpos _nearestroad;
 
-			(selectRandom civilians) createUnit [_spawnpos, _grp, "this addMPEventHandler [""MPKilled"", {_this spawn kill_manager}]", 0.5, "private"];
-			_civveh = (selectRandom civilian_vehicles) createVehicle _spawnpos;
+			( selectRandom civilians ) createUnit [ _spawnpos, _grp, "this addMPEventHandler [""MPKilled"", {_this spawn kill_manager}]", 0.5, "private"];
+			_civveh = ( selectRandom civilian_vehicles ) createVehicle _spawnpos;
 			_civveh setpos _spawnpos;
 			_civveh addMPEventHandler ['MPKilled', {_this spawn kill_manager}];
 			_civveh addEventHandler ["HandleDamage", { private [ "_damage" ]; if (( side (_this select 3) != GRLIB_side_friendly ) && ( side (_this select 3) != GRLIB_side_enemy )) then { _damage = 0 } else { _damage = _this select 2 }; _damage } ];
@@ -74,7 +74,7 @@ while { GRLIB_endgame == 0 } do {
 		{_x doFollow leader _grp} foreach units _grp;
 
 		{
-			_nearestroad = [(getmarkerpos _x) getPos [random(100), random(360)], 200, []] call BIS_fnc_nearestRoad;
+			_nearestroad = [ [  getmarkerpos (_x), random(100), random(360)  ] call BIS_fnc_relPos, 200, [] ] call BIS_fnc_nearestRoad;
 			if ( isNull _nearestroad ) then {
 				_waypoint = _grp addWaypoint [ markerpos _x, 100 ];
 			} else {

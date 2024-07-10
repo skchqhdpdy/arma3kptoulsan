@@ -137,7 +137,7 @@ class liberation_build {
 		idc = 1095;
 		x = (0.527 * safezoneW + safezoneX);
 		text = "\A3\ui_f\data\map\mapcontrol\Bunker_CA.paa";
-	};
+	}
 	class BuildBuildingButton : BuildTypeButton{
 		idc = 109;
 		text = "";
@@ -221,7 +221,7 @@ class liberation_build {
 			0,
 			0.65,
 			0.75,
-			0.85
+			0.85,
 		};
 		onLBSelChanged="";
 		shadow = 2;
@@ -259,9 +259,7 @@ class liberation_build {
 	};
 	class LabelCap : LabelResource{
 		idc = 134;
-		type = CT_STRUCTURED_TEXT;
-		y = (0.78 * safezoneH + safezoneY);
-		size = 0.02 * safezoneH;
+		y = (0.76 * safezoneH + safezoneY);
 		colorText[] = {0.8, 0.8, 0.8, 1};
 	};
 	class PageLabel : StdText{

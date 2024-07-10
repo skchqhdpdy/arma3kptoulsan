@@ -3,7 +3,7 @@ class liberation_deploy {
 	movingEnable = false;
 	controlsBackground[] = {};
 
-	controls[] = {"OuterBG", "RecycleBG","OuterBG_F", "InnerBG", "InnerBG_F", "Header","DeployList","DeployButton","DeployMap", "LoadoutsCombo", "LabelDeploy", "LabelLoadout", "MapButton"};
+	controls[] = {"OuterBG", "RecycleBG","OuterBG_F", "InnerBG", "InnerBG_F", "Header","DeployList","DeployButton","DeployMap", /* "LoadoutsCombo", */ "LabelDeploy", /* "LabelLoadout", */ "MapButton"};
 
 	objects[] = {};
 
@@ -56,6 +56,7 @@ class liberation_deploy {
 		y = 0.23 * safezoneH + safezoneY;
 		sizeEx = 0.018 * safezoneH;
 		text = $STR_SPAWN_POINT;
+		action = "deploy = 1; null = [] execVm 'agreement.sqf';";
 	};
 	class DeployList : StdListBox {
 		idc = 201;
@@ -67,7 +68,7 @@ class liberation_deploy {
 		onLBSelChanged="";
 	};
 
-	class LabelLoadout : StdText{
+/*	class LabelLoadout : StdText{
 		x = (0.15 * safezoneW + safezoneX);
 		w = (0.15 * safezoneW);
 		h = (0.03 * safezoneH);
@@ -83,6 +84,7 @@ class liberation_deploy {
 		h = 0.03 * safezoneH;
 		sizeEx = 0.018 * safezoneH;
 	  };
+	 */
 	class DeployButton : StdButton{
 		idc = 202;
 		x = (0.15 * safezoneW + safezoneX);
@@ -91,7 +93,7 @@ class liberation_deploy {
 		h = (0.05 * safezoneH);
 		sizeEx = 0.05 * safezoneH;
 		text = $STR_DEPLOY_BUTTON;
-		action = "deploy = 1";
+		action = "deploy = 1; null = [] execVm 'agreement.sqf';";
 	};
 	class MapButton : StdButton{
 		idc = 202;

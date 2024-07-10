@@ -1,5 +1,5 @@
 
-_defenders_amount = 15 * ( sqrt ( GRLIB_unitcap ) );
+_defenders_amount = 16 * ( sqrt ( GRLIB_unitcap ) );
 if ( _defenders_amount > 15 ) then { _defenders_amount = 15 };
 _fob_templates = [
 "scripts\fob_templates\template5.sqf",
@@ -9,15 +9,17 @@ _fob_templates = [
 "scripts\fob_templates\template1.sqf"
 ];
 
-_spawn_marker = [2000,999999,false] call F_findOpforSpawnPoint;
-if ( _spawn_marker == "" ) exitWith { diag_log "[KP LIBERATION] [ERROR] Could not find position for fob hunting mission"; };
+_spawn_marker = [750,999999,false] call F_findOpforSpawnPoint;
+if ( _spawn_marker == "" ) exitWith { diag_log "FOB 부차임무가 생성 될 위치를 찾지 못했습니다."; };
+
+_obj_to_clean = [];
 
 used_positions = used_positions + [ _spawn_marker ];
 _base_position = markerpos _spawn_marker;
 _base_objects = [];
 _base_objectives = [];
 _base_defenders = [];
-_template = ([] call (compile preprocessFileLineNumbers (selectRandom _fob_templates)));
+_template = ([] call (compile preprocessFileLineNumbers ( selectRandom _fob_templates )));
 
 _objects_to_build = _template select 0;
 _objectives_to_build = _template select 1;
@@ -32,12 +34,13 @@ _base_corners =  _template select 3;
 
 	_nextobject = _nextclass createVehicle _nextpos;
 	_nextobject setVectorUp [0,0,1];
-	_nextobject setdir _nextdir;
 	_nextobject setpos _nextpos;
+	_nextobject setdir _nextdir;
 	_nextobject setVectorUp [0,0,1];
-	_nextobject setdir _nextdir;
 	_nextobject setpos _nextpos;
-	_base_objects = _base_objects + [_nextobject];
+	_nextobject setdir _nextdir;
+	if(_nextobject isKindOf "Air" || _nextobject isKindOf "Tank" || _nextobject isKindOf "Car") then { _nextobject lock 3; };
+	_base_objects pushBack _nextobject;
 
 } foreach _objects_to_build;
 
@@ -56,16 +59,15 @@ sleep 1;
 	_nextobject setVectorUp [0,0,1];
 	_nextobject setpos _nextpos;
 	_nextobject setdir _nextdir;
-	_nextobject lock 2;
-
-	_base_objectives = _base_objectives + [_nextobject];
+	if(_nextobject isKindOf "Air" || _nextobject isKindOf "Tank" || _nextobject isKindOf "Car") then { _nextobject lock 3; };
+	_base_objectives pushBack _nextobject;
 } foreach _objectives_to_build;
 
 sleep 1;
 
 { _x setDamage 0; } foreach (_base_objectives + _base_objects);
 
-_grpdefenders = createGroup [GRLIB_side_enemy, true];
+_grpdefenders = createGroup GRLIB_side_enemy;
 _idxselected = [];
 while { count _idxselected < _defenders_amount } do {
 	_idx = floor (random (count _defenders_to_build));
@@ -84,11 +86,12 @@ while { count _idxselected < _defenders_amount } do {
 	nextdefender setpos _nextpos;
 	nextdefender setdir _nextdir;
 	[nextdefender] spawn building_defence_ai;
+	_base_defenders pushback nextdefender;
 } foreach _idxselected;
 
 _sentry = ceil ((3 + (floor (random 4))) * ( sqrt ( GRLIB_unitcap ) ) );
 
-_grpsentry = createGroup [GRLIB_side_enemy, true];
+_grpsentry = createGroup GRLIB_side_enemy;
 _base_sentry_pos = [(_base_position select 0) + ((_base_corners select 0) select 0), (_base_position select 1) + ((_base_corners select 0) select 1),0];
 for [ {_idx=0},{_idx < _sentry},{_idx=_idx+1} ] do {
 	opfor_sentry createUnit [_base_sentry_pos, _grpsentry,"this addMPEventHandler [""MPKilled"", {_this spawn kill_manager}]", 0.5, "private"];
@@ -113,19 +116,31 @@ secondary_objective_position_marker = [(((secondary_objective_position select 0)
 publicVariable "secondary_objective_position_marker";
 sleep 1;
 GRLIB_secondary_in_progress = 0; publicVariable "GRLIB_secondary_in_progress";
-[2] remoteExec ["remote_call_intel"];
+[ 2 ] remoteExec ["remote_call_intel" , -2];
 
 waitUntil {
 	sleep 5;
 	 ( { alive _x } count _base_objectives ) <= 1
 };
 
-combat_readiness = round (combat_readiness * GRLIB_secondary_objective_impact);
+combat_readiness = combat_readiness - 40;
 stats_secondary_objectives = stats_secondary_objectives + 1;
+
 sleep 1;
+if (combat_readiness < 0) then { combat_readiness = 0; };
 trigger_server_save = true;
 sleep 3;
 
-[3] remoteExec ["remote_call_intel"];
+[ 3 ] remoteExec ["remote_call_intel" , -2];
+
+{deleteVehicle _x} foreach _base_objects;
+{deleteVehicle _x} foreach _base_objectives;
+{deleteVehicle _x} foreach _base_defenders;
+{deleteVehicle _x} foreach units _grpsentry;
+
+sleep 3;
+
+deleteGroup _grpdefenders;
+deleteGroup _grpsentry;
 
 GRLIB_secondary_in_progress = -1; publicVariable "GRLIB_secondary_in_progress";
